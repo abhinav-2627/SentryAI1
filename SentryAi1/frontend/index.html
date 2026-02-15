@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sentry AI – Live Chat</title>
+  <style>
+    body { font-family: Arial; background:#111; color:white; }
+    #chat { height:300px; overflow:auto; border:1px solid #333; padding:10px; }
+    .toxic { color:red; }
+    .clean { color:lightgreen; }
+  </style>
+</head>
+<body>
+
+<h2>🎥 Livestream Chat (Sentry AI)</h2>
+
+<div id="chat"></div>
+<input id="msg" placeholder="Type comment..." />
+<button onclick="send()">Send</button>
+
+<script>
+const ws = new WebSocket("ws://localhost:8000/ws/chat");
+const chat = document.getElementById("chat");
+
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  const p = document.createElement("p");
+
+  if (data.status === "deleted") {
+    p.textContent = "❌ Toxic comment removed";
+    p.className = "toxic";
+  } else {
+    p.textContent = "💬 " + data.message;
+    p.className = "clean";
+  }
+
+  chat.appendChild(p);
+};
+
+function send() {
+  const input = document.getElementById("msg");
+  ws.send(input.value);
+  input.value = "";
+}
+</script>
+
+</body>
+</html>
